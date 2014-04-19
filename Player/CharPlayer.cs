@@ -11,7 +11,8 @@ namespace Player
     {
         private static int frameCount;
         private static string readRoot;
-        private static string currentFrame;
+        private static int row;
+        private static int col;
         /*以下成员与帧率限制有关
          The data members below is related to the frame limiter.
          */
@@ -22,6 +23,8 @@ namespace Player
         private static double desiredFrameRate; //预定播放帧率
         private static int frameControlInterval; //主帧率控制计时器间隔。
         private static int noneChangeCount; //执行帧数延迟检测时没有进行延迟的次数。
+        /*以下成员与读取帧有关*/
+        private static string[] frame;
 
 
         private CharPlayer()
@@ -31,19 +34,12 @@ namespace Player
         /// 构造函数
         /// </summary>
         /// <param name="processedTextRoot">处理过的字符画帧根目录</param>
-        public CharPlayer(string processedTextRoot)
+        public CharPlayer(string processedText)
         {
+            loadFile(processedText);
             frameCount = 0;
             Console.WriteLine("Initialing....");
-            using (StreamReader config = new StreamReader(processedTextRoot + "Config.txt"))
-            {
-                Console.WindowHeight = Convert.ToInt32(config.ReadLine());
-                Console.WindowWidth = Convert.ToInt32(config.ReadLine());
-                Console.BufferHeight = Console.WindowHeight;
-                Console.BufferWidth = Console.WindowWidth;
-                desiredFrameRate = Convert.ToDouble(config.ReadLine());
-            }
-            readRoot = processedTextRoot;
+            //readRoot = processedText;
             initializeInterval();
             frameControl = new Timer(frameControlInterval);
             frameOffsetTimer = new Timer(1000);
@@ -72,9 +68,9 @@ namespace Player
             Console.Clear();
             try
             {
-                loadCurrentFrame();
-                Console.Write(currentFrame);
+                Console.Write(frame[frameCount]);
                 Console.WriteLine("Now framerate is {0} FPS.", frameRate);
+                frameCount++;
             }
             catch
             {
@@ -85,7 +81,7 @@ namespace Player
         private static void OnOffsetElapsed(object source, ElapsedEventArgs e)
         {
             int checkInterval = noneChangeCount + 1;
-            frameRate = ((double)frameCount - (double)previousFrame)/checkInterval;
+            frameRate = ((double)frameCount - (double)previousFrame) / checkInterval;
             int offset = (int)(frameRate - desiredFrameRate) * checkInterval;
             if (offset != 0)
             {
@@ -122,22 +118,73 @@ namespace Player
             frameCount=0;
         }
 
-        private static void loadCurrentFrame()
+        //private static void loadCurrentFrame()
+        //{
+        //    try
+        //    {
+        //        using (StreamReader protext = new StreamReader(readRoot + frameCount.ToString() + @".txt"))
+        //        {
+        //            currentFrame = protext.ReadToEnd();
+        //        }
+        //        frameCount++;
+
+        //    }
+        //    catch
+        //    {
+        //        frameControl.Enabled = false;
+        //        frameOffsetTimer.Enabled = false;
+        //        Console.WriteLine("Finished..");
+        //    }
+        //}
+
+        private static void loadFile(string dictionary)
         {
+            StreamReader reader = new StreamReader(dictionary);
+            row=Convert.ToInt32(reader.ReadLine())-2;
+            col=Convert.ToInt32(reader.ReadLine())-2;
+            Console.WindowHeight = row+2;
+            Console.WindowWidth = col+2;
+            Console.BufferHeight = Console.WindowHeight;
+            Console.BufferWidth = Console.WindowWidth;
+            desiredFrameRate = Convert.ToDouble(reader.ReadLine());
+            Console.WriteLine("Reading Frames...");
+            int initialLength = 2400;
+            int incresement = 500;
+            frame = new string[initialLength];
             try
             {
-                using (StreamReader protext = new StreamReader(readRoot + frameCount.ToString() + @".txt"))
+                for (int index = 0; ; index++)
                 {
-                    currentFrame = protext.ReadToEnd();
+                    StringBuilder builder = new StringBuilder();
+                    for (int rc = 0; rc < row; rc++)
+                    {
+                        if (reader.EndOfStream == true)
+                        {
+                            Console.WriteLine("Reading Finished...");
+                            return;
+                        }
+                        builder.Append(reader.ReadLine() + "\n");
+                    }
+                    try
+                    {
+                        frame[index] = builder.ToString();
+                    }
+                    catch
+                    {
+                        string[] newarray = new string[frame.Length + incresement];
+                        Array.Copy(frame, 0, newarray, 0, frame.Length);
+                        frame = newarray;
+                        frame[index] = builder.ToString();
+                    }
+                    Console.WriteLine("Reading frame {0}", index);
                 }
-                frameCount++;
+
             }
             catch
             {
-                frameControl.Enabled = false;
-                frameOffsetTimer.Enabled = false;
-                Console.WriteLine("Finished..");
+                Console.WriteLine("Failure...");
             }
+
         }
     }
 }

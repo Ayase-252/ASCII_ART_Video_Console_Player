@@ -7,6 +7,10 @@ using ImageToChar;
 
 namespace ImageProcessor
 {
+    /// <summary>
+    /// 字符画转换程序
+    /// Program to convert bitmap to char image
+    /// </summary>
     class Program
     {
         static void Main(string[] args)
@@ -28,7 +32,11 @@ namespace ImageProcessor
             Console.ReadKey();
             
         }
-
+        /// <summary>
+        /// 显示菜单，并返回用户的选择。
+        /// Display the menu, and return the option number that user chose.
+        /// </summary>
+        /// <returns>用户所选的选项/The option number user chose</returns>
         private static string menu()
         {
             string select;
@@ -41,46 +49,40 @@ namespace ImageProcessor
             return select;
         }
 
-
+        /// <summary>
+        /// 转换单幅图片成字符画。并且输出txt
+        /// Convert single image to char image, and output it as a text file(*.txt).
+        /// </summary>
         private static void transformOnePicture()
         {
-            string testRoute = @"D:\23.bmp"; //Change this to your test file
-            string result;
+            Console.WriteLine(@"Input the full path of your picture.(Eg. D:\onepicture.bmp)");
+            string path = Console.ReadLine();
             Console.WriteLine("Input the row number");
-            int rownum=Convert.ToInt32(Console.ReadLine());
-            result=Image2Char.ImageToChar(testRoute, rownum,0);
-            Console.Clear();
-            using (StreamReader config = new StreamReader(@"D:\Processed Text\Config.txt"))
-            {
-                Console.WindowHeight = Convert.ToInt32(config.ReadLine());
-                Console.WindowWidth = Convert.ToInt32(config.ReadLine());
-                Console.BufferHeight = Console.WindowHeight;
-                Console.BufferWidth = Console.WindowWidth;
-            }
-            Image2Char.WriteToFile(result, 1);
-            Console.Write(result);
+            int rownum = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine(@"Input the path the save file.(Eg. input D:\Dictionary\ then the save file will save as D:\Dictionary\demo.op)");
+            string savepath = Console.ReadLine();
+            Image2Char convert = new Image2Char(path, rownum, 0, null, savepath+"demo.op");
+            convert.ConvertSinglePicture();
+            Console.ReadLine();
         }
 
+        /// <summary>
+        /// 转换一个目录内符合条件的所有图片成字符画。并输出一系列的文本文件
+        /// Convert all images arranged by rule to char image, and output them as text files.
+        /// </summary>
         private static void transformSeriesofPictues()
         {
-            string root = @"D:\One Week Friend OP Frames\序列 01.mp4"; //test option
+            Console.WriteLine(@"Input the root dictionary of your pictures(Include \ in the last of your path)");
+            string root = Console.ReadLine();
+            Console.WriteLine("Input prefix of your pictures(Eg. badapple0000.bmp prefix is badapple)");
+            string prefix = Console.ReadLine();
             Console.WriteLine("Input the row number");
             int rownum = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("Input the desired framerate");
             double frameRate = Convert.ToDouble(Console.ReadLine());
-            try
-            {
-                for (int count = 0; ; count++)
-                {
-                    Console.WriteLine("Now Scanning Picture No.{0}.\n", count);
-                    Image2Char.WriteToFile(Image2Char.ImageToChar(root + count.ToString("D4") + ".bmp", rownum,frameRate), count);
-                }
-            }
-            catch
-            {
-                Console.WriteLine("Processing Finished...");
-                Console.Read();
-            }
+            string savefilePath = @"D:\Processed Text\Demo.op";
+            Image2Char convert = new Image2Char(root, rownum, frameRate, prefix,savefilePath);
+            convert.Convert();
         }
     }
 }
