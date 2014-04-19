@@ -68,10 +68,12 @@ I. 项目构成/Constructure of project
 	图片处理程序，调用ImageToChar类库实现。
 	Image Processing Program base on console, using class library ImageToChar.
 	3. ImageToChar
-	图片转换成字符画方法集。
+	图片转换成字符画的类库。
 	The function assembly used to convert a bitmap to a char image.
 	4. Player
-	播放方法集
+	播放类库
 	The function assembly used to play the char video.
 
 II. 
+
+文档未完成/File is uncompleted
