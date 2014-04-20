@@ -26,21 +26,18 @@ namespace ImageToChar
         /// Achieve converting image to char image by calculating the average brightness over a simple area. 
         /// The function referenced a algorithm written by soso_fy. You can find it on web. http://my.oschina.net/sosofy/blog/109259
         /// </summary>
-        /// <param name="imagepath">图像文件的路径/Path of image</param>
-        /// <param name="rowsize">列显示数/The number of row sim</param>
-        /// <param name="desiredFrameRate">预定播放帧数/The desired framerate</param>
         /// <returns>字符画/Char image</returns>
         private string imageToChar()
         {
             StringBuilder result = new StringBuilder();
-            char[] charset = { 'M', '8', '0', 'V', '1', 'i', ':', '*', '|', '.', ' ' };
+            char[] charset = { 'M', '8', 'H','0','T','V','+','1', 'i', ':', '*', '|', '.', ' ' };
             Bitmap image = loadImage();
             for (int rownum = 0; rownum < rowsize; rownum++)
             {
                 for (int colnum = 0; colnum < colsize; colnum++)
                 {
-                    int cpixelH = spaceH * colnum;
-                    int cpixelW = spaceW * rownum;
+                    int cpixelH = spaceH * rownum;
+                    int cpixelW = spaceW * colnum;
                     float averBright = 0;
                     for (int offsetH = 0; offsetH < spaceH; offsetH++) //遍历获得平均亮度值
                     {
@@ -48,7 +45,7 @@ namespace ImageToChar
                         {
                             try
                             {
-                                Color pixel = image.GetPixel(cpixelH + offsetH, cpixelW + offsetW);
+                                Color pixel = image.GetPixel(cpixelW + offsetW, cpixelH + offsetH);
                                 averBright += pixel.GetBrightness();
                             }
                             catch
@@ -58,8 +55,8 @@ namespace ImageToChar
                         }
                     }
                     averBright /= (spaceH * spaceW);
-                    int pickup = (int)(averBright * 10);
-                    result.Append(charset[10 - pickup]);
+                    int pickup = (int)(averBright * (charset.Length-1));
+                    result.Append(charset[charset.Length -1 - pickup]);
                 }
                 result.Append("\n");
             }
@@ -72,14 +69,14 @@ namespace ImageToChar
         private string imageToCharWithoutCount()
         {
             StringBuilder result = new StringBuilder();
-            char[] charset = { 'M', '8', '0', 'V', '1', 'i', ':', '*', '|', '.', ' ' };
+            char[] charset = { 'M', '8', 'H', '0', 'T', 'V', '+', '1', 'i', ':', '*', '|', '.', ' ' };
             Bitmap image = loadImageWithoutCount();
             for (int rownum = 0; rownum < rowsize; rownum++)
             {
                 for (int colnum = 0; colnum < colsize; colnum++)
                 {
-                    int cpixelH = spaceH * colnum;
-                    int cpixelW = spaceW * rownum;
+                    int cpixelH = spaceH * rownum;
+                    int cpixelW = spaceW * colnum;
                     float averBright = 0;
                     for (int offsetH = 0; offsetH < spaceH; offsetH++) //遍历获得平均亮度值
                     {
@@ -87,7 +84,7 @@ namespace ImageToChar
                         {
                             try
                             {
-                                Color pixel = image.GetPixel(cpixelH + offsetH, cpixelW + offsetW);
+                                Color pixel = image.GetPixel(cpixelW + offsetW, cpixelH + offsetH);
                                 averBright += pixel.GetBrightness();
                             }
                             catch
@@ -97,8 +94,8 @@ namespace ImageToChar
                         }
                     }
                     averBright /= (spaceH * spaceW);
-                    int pickup = (int)(averBright * 10);
-                    result.Append(charset[10 - pickup]);
+                    int pickup = (int)(averBright * (charset.Length - 1));
+                    result.Append(charset[(charset.Length - 1) - pickup]);
                 }
                 result.Append("\n");
             }
@@ -121,19 +118,20 @@ namespace ImageToChar
             Bitmap image = loadImage();
             pixelH = image.Height;
             pixelW = image.Width;
-            colsize = (int)(rowsize * ((float)pixelW / (float)pixelH));
             spaceH = pixelH / rowsize;
-            spaceW = pixelW / colsize;
+            spaceW = spaceH * 8 / 18;
+            colsize = pixelW / spaceW;
         }
+
 
         private void calculateConfigWithoutCount()
         {
             Bitmap image = loadImageWithoutCount();
             pixelH = image.Height;
             pixelW = image.Width;
-            colsize = (int)(rowsize * ((float)pixelW / (float)pixelH));
             spaceH = pixelH / rowsize;
-            spaceW = pixelW / colsize;
+            spaceW = spaceH*8/18;
+            colsize = pixelW/spaceW;
         }
 
         private Bitmap loadImage()

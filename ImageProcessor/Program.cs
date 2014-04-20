@@ -80,8 +80,9 @@ namespace ImageProcessor
             int rownum = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("Input the desired framerate");
             double frameRate = Convert.ToDouble(Console.ReadLine());
-            string savefilePath = @"D:\Processed Text\Demo.op";
-            Image2Char convert = new Image2Char(root, rownum, frameRate, prefix,savefilePath);
+            Console.WriteLine(@"Input the path the save file.(Eg. input D:\Dictionary\ then the save file will save as D:\Dictionary\demo.op)");
+            string savefilePath = Console.ReadLine();
+            Image2Char convert = new Image2Char(root, rownum, frameRate, prefix, savefilePath + "demo.op");
             convert.Convert();
         }
     }

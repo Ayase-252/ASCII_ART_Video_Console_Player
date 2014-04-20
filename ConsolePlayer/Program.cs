@@ -18,7 +18,7 @@ namespace ConsolePlayer
         private static string readroot;
         public static void Main(string[] args)
         {
-            SoundPlayer bgmPlayers = new SoundPlayer(@"D:\OneWeekFriendOP.wav");
+            SoundPlayer bgmPlayers = new SoundPlayer(@"D:\Bad Apple!!.wav");
             readroot = @"D:\Processed Text\Demo.op";
             CharPlayer player = new CharPlayer(readroot);
             Console.WriteLine("Ready to play?");
