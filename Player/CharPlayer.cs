@@ -7,39 +7,48 @@ using System.IO;
 
 namespace Player
 {
+    /// <summary>
+    /// Class library to play ASCII video
+    /// </summary>
     public class CharPlayer
     {
-        private static int frameCount;
-        private static string readRoot;
-        private static int row;
-        private static int col;
-        /*以下成员与帧率限制有关
-         The data members below is related to the frame limiter.
+        #region data members
+        /* Defination of data members
+         * Last Updated: 2014/4/21 Initial comment
+         * Version Number: 1.0.0.0
          */
-        private static Timer frameControl; //主帧率控制计时器，以实现逼近预定帧率的间隔时间触发。
-        private static Timer frameOffsetTimer; //播放中帧数延迟计时器，每3s执行一次帧率检测。
-        private static int previousFrame; //之前一次执行帧数延迟的帧数。
-        private static double frameRate; //当前的平均帧率
-        private static double desiredFrameRate; //预定播放帧率
-        private static int frameControlInterval; //主帧率控制计时器间隔。
-        private static int noneChangeCount; //执行帧数延迟检测时没有进行延迟的次数。
-        /*以下成员与读取帧有关*/
-        private static string[] frame;
+        private static int frameCount; //The current frame number
+        private static int row; //The amount of rows. Read from the config area of processed text
+        private static int col; //The amount of columns
+        /* The data members below is related to the frame control.*/
+        private static Timer frameControl; //Main frame control. Raise a event to change frame in tiny interval
+        private static Timer frameOffsetTimer; //Offset timer, raise a event to check frame rate and offset frame in relative bigger interval
+        private static int previousFrame; //The frame number when last offset was executed
+        private static double frameRate; //The average frame rate from last offset to this check
+        private static double desiredFrameRate; //The desired frame rate you want to play at
+        private static int frameControlInterval; //The interval of main frame control.
+        private static int noneChangeCount; //The time of frame check without offset
 
+        private static string[] frame; //Frames
+        /* Defination of data members ended here */
 
-        private CharPlayer()
+        #endregion
+
+        private CharPlayer() //Forbidden to construct the class without required information
         {
         }
+
         /// <summary>
-        /// 构造函数
+        /// Constructor
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
-        /// <param name="processedTextRoot">处理过的字符画帧根目录</param>
+        /// <param name="processedTextRoot">root dictionary of the processed text file</param>
         public CharPlayer(string processedText)
         {
             loadFile(processedText);
             frameCount = 0;
             Console.WriteLine("Initialing....");
-            //readRoot = processedText;
             initializeInterval();
             frameControl = new Timer(frameControlInterval);
             frameOffsetTimer = new Timer(1000);
@@ -49,7 +58,9 @@ namespace Player
         }
 
         /// <summary>
-        /// 播放字符画。
+        /// Start to play ASCII video
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
         public void Play()
         {
@@ -59,7 +70,10 @@ namespace Player
         }
 
         /// <summary>
-        /// 在主帧率控制器下向控制台写入当前帧数代表的字符画。
+        /// The event handle raised by main frame control.
+        /// To write the present frames into console
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
@@ -78,6 +92,15 @@ namespace Player
             }
         }
 
+        /// <summary>
+        /// Event raized by offset timer
+        /// Execute a frame check and offset the frame by the different between actual value and desired
+        /// Solution II to Issue #1 :https://github.com/AragakiAyase/ASCII_ART_Video_Console_Player/issues/1
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.0
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
         private static void OnOffsetElapsed(object source, ElapsedEventArgs e)
         {
             int checkInterval = noneChangeCount + 1;
@@ -95,10 +118,16 @@ namespace Player
             }
         }
 
+        /// <summary>
+        /// To initialze interval of main frame control, depending on PC performance
+        /// Solution I to Issue #1: https://github.com/AragakiAyase/ASCII_ART_Video_Console_Player/issues/1
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.0
+        /// </summary>
         private static void initializeInterval()
         {
             frameCount = 0;
-            frameControl = new Timer(100);//每0.1s触发一次将帧写入控制台的操作。
+            frameControl = new Timer(100);
             frameControl.Elapsed += new ElapsedEventHandler(OnElapsed);
             DateTime start = new DateTime();
             start = DateTime.Now;
@@ -118,28 +147,16 @@ namespace Player
             frameCount=0;
         }
 
-        //private static void loadCurrentFrame()
-        //{
-        //    try
-        //    {
-        //        using (StreamReader protext = new StreamReader(readRoot + frameCount.ToString() + @".txt"))
-        //        {
-        //            currentFrame = protext.ReadToEnd();
-        //        }
-        //        frameCount++;
 
-        //    }
-        //    catch
-        //    {
-        //        frameControl.Enabled = false;
-        //        frameOffsetTimer.Enabled = false;
-        //        Console.WriteLine("Finished..");
-        //    }
-        //}
-
-        private static void loadFile(string dictionary)
+        /// <summary>
+        /// Read config and frames from processed text file
+        /// Last Updated: 2014/4/21 Initial comment
+        /// Version Number: 1.0.0.1 Change parameter name from dictionary to path to increase the readability
+        /// </summary>
+        /// <param name="dictionary">Path of processed text file</param>
+        private static void loadFile(string path)
         {
-            StreamReader reader = new StreamReader(dictionary);
+            StreamReader reader = new StreamReader(path);
             row=Convert.ToInt32(reader.ReadLine())-2;
             col=Convert.ToInt32(reader.ReadLine())-2;
             Console.WindowHeight = row+2;

@@ -8,11 +8,16 @@ using ImageToChar;
 namespace ImageProcessor
 {
     /// <summary>
-    /// 字符画转换程序
-    /// Program to convert bitmap to char image
+    /// Discription: Program to convert bitmap to char image
     /// </summary>
     class Program
     {
+        /// <summary>
+        /// Discription: Main Function
+        /// Last Update: 2014/4/20 Initial comment
+        /// Version Number: 1.0.0.0
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
             string returnedKey;
@@ -33,10 +38,11 @@ namespace ImageProcessor
             
         }
         /// <summary>
-        /// 显示菜单，并返回用户的选择。
-        /// Display the menu, and return the option number that user chose.
+        /// Discription: Display a menu, and return the option number that user chose.
+        /// Last Updated: 2014/4/20 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
-        /// <returns>用户所选的选项/The option number user chose</returns>
+        /// <returns>The option number user chose</returns>
         private static string menu()
         {
             string select;
@@ -50,8 +56,9 @@ namespace ImageProcessor
         }
 
         /// <summary>
-        /// 转换单幅图片成字符画。并且输出txt
-        /// Convert single image to char image, and output it as a text file(*.txt).
+        /// Discription: Convert single image to ASCII image, and output it as a text file(*.txt).
+        /// Last Updated: 2014/4/20 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
         private static void transformOnePicture()
         {
@@ -67,8 +74,9 @@ namespace ImageProcessor
         }
 
         /// <summary>
-        /// 转换一个目录内符合条件的所有图片成字符画。并输出一系列的文本文件
-        /// Convert all images arranged by rule to char image, and output them as text files.
+        /// Convert all images arranged by specific rule to ASCII image, and output them as text files.
+        /// Last Updated: 2014/4/20 Initial comment
+        /// Version Number: 1.0.0.0
         /// </summary>
         private static void transformSeriesofPictues()
         {
