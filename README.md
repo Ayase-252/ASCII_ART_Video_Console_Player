@@ -1,4 +1,4 @@
 Char_Video_Console_Player
 =========================
 
-A simple char video player using console.
+A simple player using console to play video which is made up of ASCII art.
