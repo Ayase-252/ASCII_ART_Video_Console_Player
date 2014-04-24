@@ -24,15 +24,19 @@ namespace ConsolePlayer
 
         /// <summary>
         /// Main Function
-        /// Last Updated: 2014-4-20 Initail comment
-        /// Version Number: 1.0.0.0
+        /// Last Updated: 2014-4-24 Enable user to input the path.
+        /// Version Number: 1.0.0.1
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            SoundPlayer bgmPlayers = new SoundPlayer(@"D:\Bad Apple!!.wav"); // a simple music player which support the wave only. 
-            readroot = @"D:\Processed Text\Demo.op"; // Should change to appeal the requirement of users.
-            CharPlayer player = new CharPlayer(readroot);
+            string musicpath, filepath;
+            Console.WriteLine(@"Input the path of your processed file(X;\XXX\XXX.op):");
+            filepath=Console.ReadLine();
+            Console.WriteLine("Input the path of BGM(*.wav only):");
+            musicpath = Console.ReadLine();
+            SoundPlayer bgmPlayers = new SoundPlayer(musicpath); // a simple music player which support the wave only. 
+            CharPlayer player = new CharPlayer(filepath);
             Console.WriteLine("Ready to play?");
             Console.ReadLine();
             player.Play();

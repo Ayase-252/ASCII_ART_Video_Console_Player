@@ -34,10 +34,9 @@ namespace Player
 
         #endregion
 
-        private CharPlayer() //Forbidden to construct the class without required information
-        {
-        }
 
+
+        #region public method
         /// <summary>
         /// Constructor
         /// Last Updated: 2014/4/21 Initial comment
@@ -68,28 +67,25 @@ namespace Player
             frameOffsetTimer.Enabled = true;
             previousFrame = 0;
         }
+        #endregion
+
+        #region private method
+
+        private CharPlayer() //Forbidden to construct the class without required information
+        {
+        }
 
         /// <summary>
         /// The event handle raised by main frame control.
         /// To write the present frames into console
-        /// Last Updated: 2014/4/21 Initial comment
-        /// Version Number: 1.0.0.0
+        /// Last Updated: 2014/4/21 Adjust structure. Make original content as an independent method
+        /// Version Number: 1.0.0.2
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
         private static void OnElapsed(object source, ElapsedEventArgs e)
         {
-            Console.Clear();
-            try
-            {
-                Console.Write(frame[frameCount]);
-                Console.WriteLine("Now framerate is {0} FPS.", frameRate);
-                frameCount++;
-            }
-            catch
-            {
-                Console.WriteLine("Finished..");
-            }
+            refreshnextFrame();
         }
 
         /// <summary>
@@ -121,28 +117,25 @@ namespace Player
         /// <summary>
         /// To initialze interval of main frame control, depending on PC performance
         /// Solution I to Issue #1: https://github.com/AragakiAyase/ASCII_ART_Video_Console_Player/issues/1
-        /// Last Updated: 2014/4/21 Initial comment
-        /// Version Number: 1.0.0.0
+        /// Last Updated: 2014/4/21 Change the strategy to determine the interval, now manual interference is not required
+        /// Version Number: 1.0.0.2
         /// </summary>
         private static void initializeInterval()
         {
             frameCount = 0;
-            frameControl = new Timer(100);
-            frameControl.Elapsed += new ElapsedEventHandler(OnElapsed);
             DateTime start = new DateTime();
-            start = DateTime.Now;
             DateTime end = new DateTime();
             Console.WriteLine("Initializing the interval...");
-            frameControl.Enabled = true;
-            Console.ReadLine();
-            frameControl.Enabled = false;
-            frameControl.Dispose();
+            start = DateTime.Now;
+            for (int time = 0; time < 100;time++ )
+            {
+                refreshnextFrame();
+            }
             end = DateTime.Now;
             TimeSpan offset = end - start;
-            double averoffset = (offset.TotalMilliseconds - 100 * frameCount) / frameCount;
+            double averoffset = offset.TotalMilliseconds / frameCount;
             frameControlInterval = 1000 /(int) desiredFrameRate - (int)averoffset;
             Console.WriteLine("Now the interval is {0} ms.(Push Enter to Continue)",frameControlInterval);
-            Console.ReadLine();
             Console.Clear();
             frameCount=0;
         }
@@ -203,5 +196,28 @@ namespace Player
             }
 
         }
+
+        /// <summary>
+        /// Fefresh next frame, separated from OnElapsed
+        /// Last Updated: 2014/4/21 Created
+        /// Version Number: 1.0.0.2
+        /// </summary>
+        private static void refreshnextFrame()
+        {
+            Console.Clear();
+            try
+            {
+                Console.Write(frame[frameCount]);
+                Console.WriteLine("Now framerate is {0} FPS.", frameRate);
+                frameCount++;
+            }
+            catch
+            {
+                Console.WriteLine("Finished..");
+                frameControl.Enabled = false;
+                frameOffsetTimer.Enabled = false;
+            }
+        }
+        #endregion
     }
 }
