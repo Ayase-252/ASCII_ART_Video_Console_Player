@@ -14,24 +14,16 @@ namespace ConsolePlayer
     /// </summary>
     class Program
     {
-        /* Defination of Data members
-         * Last Updated: 2014/4/20 Initial comment
-         * Version Number: 1.0.0.0
-         */
-        private static string readroot; //The path of the file contained ASCII images.
-
-        /* Defination of members ended here*/
-
         /// <summary>
         /// Main Function
-        /// Last Updated: 2014-4-24 Enable user to input the path.
-        /// Version Number: 1.0.0.1
+        /// Last Updated: 2014-4-25 Change insctruction
+        /// Version Number: 1.0.0.2
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
             string musicpath, filepath;
-            Console.WriteLine(@"Input the path of your processed file(X;\XXX\XXX.op):");
+            Console.WriteLine(@"Input the path of your processed file(X:\XXX\XXX.op):");
             filepath=Console.ReadLine();
             Console.WriteLine("Input the path of BGM(*.wav only):");
             musicpath = Console.ReadLine();
