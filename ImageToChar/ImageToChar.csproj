@@ -42,6 +42,12 @@
     <Compile Include="Image2Char.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Player\Player.csproj">
+      <Project>{41659314-8380-46b3-8a83-2d92a64341e4}</Project>
+      <Name>Player</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

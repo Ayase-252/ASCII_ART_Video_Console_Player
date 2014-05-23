@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.IO;
+using System.Threading;
+using ConsoleExtender;
 
 namespace Player
 {
@@ -21,8 +23,8 @@ namespace Player
         private static int row; //The amount of rows. Read from the config area of processed text
         private static int col; //The amount of columns
         /* The data members below is related to the frame control.*/
-        private static Timer frameControl; //Main frame control. Raise a event to change frame in tiny interval
-        private static Timer frameOffsetTimer; //Offset timer, raise a event to check frame rate and offset frame in relative bigger interval
+        private static System.Timers.Timer frameControl; //Main frame control. Raise a event to change frame in tiny interval
+        private static System.Timers.Timer frameOffsetTimer; //Offset timer, raise a event to check frame rate and offset frame in relative bigger interval
         private static int previousFrame; //The frame number when last offset was executed
         private static double frameRate; //The average frame rate from last offset to this check
         private static double desiredFrameRate; //The desired frame rate you want to play at
@@ -39,18 +41,19 @@ namespace Player
         #region public method
         /// <summary>
         /// Constructor
-        /// Last Updated: 2014/4/21 Initial comment
-        /// Version Number: 1.0.0.0
+        /// Last Updated: 2014/5/23 Change the font to much small one
+        /// Version Number: 1.1.0.0
         /// </summary>
         /// <param name="processedTextRoot">root dictionary of the processed text file</param>
         public CharPlayer(string processedText)
         {
+            ConsoleHelper.SetConsoleFont(0);
             loadFile(processedText);
             frameCount = 0;
             Console.WriteLine("Initialing....");
             initializeInterval();
-            frameControl = new Timer(frameControlInterval);
-            frameOffsetTimer = new Timer(1000);
+            frameControl = new System.Timers.Timer(frameControlInterval);
+            frameOffsetTimer = new System.Timers.Timer(1000);
             frameControl.Elapsed += new ElapsedEventHandler(OnElapsed);
             frameOffsetTimer.Elapsed += new ElapsedEventHandler(OnOffsetElapsed);
             Console.WriteLine("Initiallized...");
@@ -127,17 +130,17 @@ namespace Player
             DateTime end = new DateTime();
             Console.WriteLine("Initializing the interval...");
             start = DateTime.Now;
-            for (int time = 0; time < 100;time++ )
+            for (int time = 0; time < 100; time++)
             {
                 refreshnextFrame();
             }
             end = DateTime.Now;
             TimeSpan offset = end - start;
             double averoffset = offset.TotalMilliseconds / frameCount;
-            frameControlInterval = 1000 /(int) desiredFrameRate - (int)averoffset;
-            Console.WriteLine("Now the interval is {0} ms.(Push Enter to Continue)",frameControlInterval);
+            frameControlInterval = 1000 / (int)desiredFrameRate - (int)averoffset;
+            Console.WriteLine("Now the interval is {0} ms.(Push Enter to Continue)", frameControlInterval);
             Console.Clear();
-            frameCount=0;
+            frameCount = 0;
         }
 
 
@@ -150,10 +153,10 @@ namespace Player
         private static void loadFile(string path)
         {
             StreamReader reader = new StreamReader(path);
-            row=Convert.ToInt32(reader.ReadLine())-2;
-            col=Convert.ToInt32(reader.ReadLine())-2;
-            Console.WindowHeight = row+2;
-            Console.WindowWidth = col+2;
+            row = Convert.ToInt32(reader.ReadLine()) - 2;
+            col = Convert.ToInt32(reader.ReadLine()) - 2;
+            Console.WindowHeight = row + 2;
+            Console.WindowWidth = col + 2;
             Console.BufferHeight = Console.WindowHeight;
             Console.BufferWidth = Console.WindowWidth;
             desiredFrameRate = Convert.ToDouble(reader.ReadLine());
@@ -195,6 +198,41 @@ namespace Player
                 Console.WriteLine("Failure...");
             }
 
+        }
+
+        /// <summary>
+        /// Fefresh next frame colored, separated from OnElapsed
+        /// Last Updated: 2014/5/23 Created
+        /// Version Number: 2.0.0.0
+        /// </summary>
+        private static void refreshnextFrame_Colored()
+        {
+            Console.Clear();
+            try
+            {
+                for (int i = 0; i < frame[frameCount].Length; i++)
+                {
+                    char colorbyte = frame[frameCount][i];
+                    if (colorbyte != '\n')
+                    {
+                        ConsoleColor concolor = (ConsoleColor)int.Parse(colorbyte.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                        Console.ForegroundColor = concolor;
+                        Console.Write("M");
+                    }
+                    else
+                    {
+                        Console.Write("\n");
+                    }
+                }
+                Console.WriteLine("Now framerate is {0} FPS.", frameRate);
+                frameCount++;
+            }
+            catch
+            {
+                Console.WriteLine("Finished..");
+                frameControl.Enabled = false;
+                frameOffsetTimer.Enabled = false;
+            }
         }
 
         /// <summary>

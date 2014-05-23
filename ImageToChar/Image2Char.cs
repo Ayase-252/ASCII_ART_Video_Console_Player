@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.IO;
+using Player;
 
 namespace ImageToChar
 {
@@ -90,6 +91,62 @@ namespace ImageToChar
         }
 
         /// <summary>
+        /// Achieve converting image to char image by calculating the average of RGB of an area,and convert the color to the closest ConsoleColor. Used in continuous mode.
+        /// Last Updated: 2014/4/21 Initial commment
+        /// Version Number: 1.0.0.0
+        /// </summary>
+        /// <returns>ASCII Art</returns>
+        private string imageToChar_Colored()
+        {
+            StringBuilder result = new StringBuilder();
+            Bitmap image = loadImage();
+            for (int rownum = 0; rownum < rowsize; rownum++)
+            {
+                for (int colnum = 0; colnum < colsize; colnum++)
+                {
+                    int cpixelH = spaceH * rownum;
+                    int cpixelW = spaceW * colnum;
+                    int averR = 0;
+                    int averG = 0;
+                    int averB = 0;
+                    int _count = 0;
+                    for (int offsetH = 0; offsetH < spaceH; offsetH++)
+                    {
+                        for (int offsetW = 0; offsetW < spaceW; offsetW++)
+                        {
+                            try
+                            {
+                                Color pixel = image.GetPixel(cpixelW + offsetW, cpixelH + offsetH);
+                                averR += pixel.R;
+                                averG += pixel.G;
+                                averB += pixel.B;
+                                _count++;
+                            }
+                            catch
+                            {
+                                
+                            }
+                        }
+                    }
+                    if(_count==spaceH*spaceW)
+                    {
+                        _count = spaceH * spaceW;
+                    }
+                    averR /= _count;
+                    averG /= _count;
+                    averB /= _count;
+                    result.Append(getClosestConsoleColor(Convert.ToByte(averR),Convert.ToByte(averG),Convert.ToByte(averB)).ToString("X"));
+                    
+                }
+                result.Append("\n");
+            }
+            processedText.Write(result);
+            processedText.Flush();
+            count++;
+            return result.ToString();
+        }
+
+        /// <summary>
         /// Achieve converting image to char image by calculating the average brightness over a simple area. Used in single mode.
         /// The function referenced a algorithm written by soso_fy. You can find it on web. http://my.oschina.net/sosofy/blog/109259
         /// Last Updated: 2014/4/21 Initial commment
@@ -135,6 +192,56 @@ namespace ImageToChar
             return result.ToString();
         }
 
+        private string imageToChar_ColoredWithoutCount()
+        {
+            StringBuilder result = new StringBuilder();
+            Bitmap image = loadImageWithoutCount();
+            for (int rownum = 0; rownum < rowsize; rownum++)
+            {
+                for (int colnum = 0; colnum < colsize; colnum++)
+                {
+                    int cpixelH = spaceH * rownum;
+                    int cpixelW = spaceW * colnum;
+                    int averR = 0;
+                    int averG = 0;
+                    int averB = 0;
+                    int _count = 0;
+                    for (int offsetH = 0; offsetH < spaceH; offsetH++)
+                    {
+                        for (int offsetW = 0; offsetW < spaceW; offsetW++)
+                        {
+                            try
+                            {
+                                Color pixel = image.GetPixel(cpixelW + offsetW, cpixelH + offsetH);
+                                averR += pixel.R;
+                                averG += pixel.G;
+                                averB += pixel.B;
+                                _count++;
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+                    if (_count == spaceH * spaceW)
+                    {
+                        _count = spaceH * spaceW;
+                    }
+                    averR /= _count;
+                    averG /= _count;
+                    averB /= _count;
+                    result.Append(getClosestConsoleColor(Convert.ToByte(averR), Convert.ToByte(averG), Convert.ToByte(averB)).ToString("X"));
+
+                }
+                result.Append("\n");
+            }
+            processedText.Write(result);
+            processedText.Flush();
+            count++;
+            return result.ToString();
+        }
+
         /// <summary>
         /// Write config information in the first 3 lines of the processed text file.
         /// Last Updated: 2014/4/21 Initial comment
@@ -159,7 +266,7 @@ namespace ImageToChar
             pixelH = image.Height;
             pixelW = image.Width;
             spaceH = pixelH / rowsize;
-            spaceW = spaceH * 8 / 18;
+            spaceW = Convert.ToInt32((double)spaceH/213.0*80.0);
             colsize = pixelW / spaceW;
         }
 
@@ -231,7 +338,7 @@ namespace ImageToChar
         /// Last Updated: 2014/4/21 Initial commment
         /// Version Number: 1.0.0.0
         /// </summary>
-        public void Convert()
+        public void Start()
         {
             Console.WriteLine("Configuring the parameter");
             calculateConfig();
@@ -260,12 +367,57 @@ namespace ImageToChar
         public void ConvertSinglePicture()
         {
             calculateConfigWithoutCount();
+            //ConsoleExtender.ConsoleHelper.SetConsoleFont(0);
             Console.WindowHeight = rowsize+2;
             Console.WindowWidth = colsize + 2;
             Console.BufferHeight = Console.WindowHeight;
             Console.BufferWidth = Console.WindowWidth;
-            Console.Write(imageToCharWithoutCount());
+            string res=imageToChar_ColoredWithoutCount();
+            for (int i = 0; i < res.Length; i++)
+            {
+                char colorbyte = res[i];
+                if (colorbyte != '\n')
+                {
+                    ConsoleColor concolor = (ConsoleColor)int.Parse(colorbyte.ToString(), System.Globalization.NumberStyles.AllowHexSpecifier);
+                    Console.ForegroundColor = concolor;
+                    Console.Write("M");
+                }
+                else
+                {
+                    Console.Write("\n");
+                }
+            }
             Console.WriteLine("Finished Processing");
+        }
+
+
+        private ConsoleColor getClosestConsoleColor(byte R, byte G, byte B)
+        {
+            ConsoleColor result=0;
+            double distance=double.MaxValue;
+            foreach(ConsoleColor item in Enum.GetValues(typeof(ConsoleColor)))
+            {
+                var _simple = Enum.GetName(typeof(ConsoleColor),item);
+                switch(_simple)
+                {
+                    case "DarkBlue": _simple = "Navy"; break;
+                    case "DarkGreen": _simple = "Green"; break;
+                    case "DarkCyan": _simple = "Teal"; break;
+                    case "DarkRed": _simple = "Maroon"; break;
+                    case "DarkMagenta": _simple= "Purple"; break;
+                    case "DarkYellow": _simple = "Olive"; break;
+                    case "Green": _simple = "Lime"; break;
+                    default: break;
+                }
+                var simple = Color.FromName(_simple);
+                var dis = Math.Pow(R - simple.R, 2) + Math.Pow(G - simple.G, 2) + Math.Pow(B - simple.B, 2);
+                if(dis<distance)
+                {
+                    distance = dis;
+                    result = item;
+                }
+            }
+            return result;
         }
         #endregion
     }
